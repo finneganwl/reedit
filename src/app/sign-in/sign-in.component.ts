@@ -82,7 +82,6 @@ export class SignInComponent implements OnInit {
 	}
 	closeModal() {	
 		if (!this.errorOccurred) {
-			console.log($("#signIn"));
 			$("#signIn").modal('toggle');
 
 			// reset before exiting

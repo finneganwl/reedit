@@ -40,11 +40,14 @@
 
 <div class="container-fluid">
   <ul class="list-group">
-    <li *ngFor="let post of posts | async | reverse" class="list-group-item">
+    <li *ngFor="let post of posts  | async | reverse" class="list-group-item">
       <div class="row">
         <div class="col-1">
           <div class="text-center">
-            <a (click)="upvote(post)" class="text-muted"><span class="oi oi-arrow-thick-top"></span></a>
+            <a (click)="upvote(post)" class="text-muted">
+              <span *ngIf="upvoteIsColored[post.key]" class="oi oi-arrow-thick-top text-primary"></span>
+              <span *ngIf="!upvoteIsColored[post.key]" class="oi oi-arrow-thick-top"></span>
+            </a>
             <p><b>{{post.payload.val().upvotes}}</b></p>
           </div>
         </div>

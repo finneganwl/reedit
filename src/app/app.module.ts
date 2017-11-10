@@ -7,7 +7,7 @@ import { SignInComponent } from './sign-in/sign-in.component';
 
 import { AngularFireModule } from 'angularfire2';
 import { AngularFireAuthModule } from 'angularfire2/auth';
-import { AngularFireDatabaseModule } from 'angularfire2/database'
+import { AngularFireDatabaseModule} from 'angularfire2/database'
 import { environment } from '../environments/environment';
 import { ReversePipe } from './reverse.pipe';
 import { SubmitPostComponent } from './submit-post/submit-post.component';
