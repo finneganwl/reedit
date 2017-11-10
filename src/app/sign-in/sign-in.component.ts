@@ -2,6 +2,8 @@ import { Component, OnInit, ViewEncapsulation, Output, EventEmitter} from '@angu
 import { AngularFireAuth } from 'angularfire2/auth';
 import * as firebase from 'firebase/app';
 
+declare var $: any;
+
 @Component({
 	selector: 'app-sign-in',
 	templateUrl: './sign-in.component.html',
@@ -80,7 +82,8 @@ export class SignInComponent implements OnInit {
 	}
 	closeModal() {	
 		if (!this.errorOccurred) {
-			$('#signIn').modal('toggle');
+			console.log($("#signIn"));
+			$("#signIn").modal('toggle');
 
 			// reset before exiting
 			this.username = "";
