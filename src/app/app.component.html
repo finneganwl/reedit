@@ -1,20 +1,18 @@
-<nav class="navbar navbar-expand-md bg-dark navbar-dark">
-  <!-- Brand -->
+<nav class="navbar navbar-expand bg-dark navbar-dark">
   <a class="navbar-brand" href="#">Reedit</a>
 
-  <!-- Toggler/collapsibe Button -->
-  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#collapsibleNavbar">
-    <span class="navbar-toggler-icon"></span>
-  </button>
-
-  <!-- Navbar links -->
   <ul class="navbar-nav ml-auto">
-    <li class="nav-item dropdown">
+    <li class="nav-item">
+      <a class="nav-link" data-toggle="modal" data-target="#signIn" href="#"><span class="oi oi-pencil"></span> Submit Post</a>
+    </li>
+    <li *ngIf="!currentUser" class="nav-item">
+      <a class="nav-link" data-toggle="modal" data-target="#signIn" href="#"><span class="oi oi-account-login"></span> Sign Up</a>
+    </li>
+    <li *ngIf="currentUser"class="nav-item dropdown">
       <a class="nav-link dropdown-toggle" href="#" id="navbardrop" data-toggle="dropdown">
-        <span class="oi oi-person"></span>
+        <span class="oi oi-person"></span> {{currentUser}}
       </a>
       <div class="dropdown-menu dropdown-menu-right">
-        <a class="dropdown-item" data-toggle="modal" data-target="#signIn" href="#"><span class="oi oi-account-login"></span> Sign Up</a>
         <a class="dropdown-item" href="#"><span class="oi oi-book"></span> My Posts</a>
         <a class="dropdown-item" href="#"><span class="oi oi-account-logout"></span> Logout</a>
       </div>
@@ -26,10 +24,61 @@
 <div class="modal fade" id="signIn">
   <div class="modal-dialog">
     <div class="modal-content">
-      <app-sign-in></app-sign-in>
-      
+      <app-sign-in (authenticated)="onAuthenticated($event)"></app-sign-in>
 
     </div>
   </div>
 </div>
 
+<div class="modal fade" id="submitPost">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title">{{task}}</h4>
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+      </div>
+
+      <form ngNativeValidate>
+        <div class="modal-body">
+          <div class="form-group">
+            <label for="link">Link:</label>
+            <input [(ngModel)]="username" type="text" class="form-control" name="username" required>
+          </div>
+          <div class="form-group">
+            <label for="email">Email address:</label>
+            <input [(ngModel)]="email" type="email" class="form-control" name="email" required>
+          </div>
+          <div class="form-group">
+            <label for="pwd">Password:</label>
+            <input [(ngModel)]="password" type="password" class="form-control" name="password" required>
+          </div>
+          <span *ngIf="task=='Sign Up'">Already have an account? <a (click)=switchTasks() href="#">Login</a></span>
+          <span *ngIf="task=='Login'">Need to create an account? <a (click)=switchTasks() href="#">Sign Up</a></span>
+        </div>
+
+        <div class="modal-footer">
+          <button type="submit" class="btn btn-primary" (click)=submitTask()>{{task}}</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<div class="container">
+  <ul class="list-group">
+    <li *ngFor="let post of posts | async | reverse" class="list-group-item">
+      <div class="row">
+        <div class="col-1">
+          <div class="text-center">
+            <a (click)="upvote(post)" class="text-muted"><span class="oi oi-arrow-thick-top"></span></a>
+            <p><b>{{post.payload.val().upvotes}}</b></p>
+          </div>
+        </div>
+        <div class="col-11">
+          <a href="{{post.payload.val().link}}" target="_blank">{{post.payload.val().title}}</a>
+          <p class="text-muted">2 minutes ago by {{post.payload.val().submittedBy}}</p>
+        </div>
+      </div>
+    </li>
+  </ul>
+</div>

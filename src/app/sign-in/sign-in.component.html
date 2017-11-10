@@ -4,26 +4,25 @@
 	<button type="button" class="close" data-dismiss="modal">&times;</button>
 </div>
 
-<!-- Modal body -->
-<div class="modal-body">
-	<form>
-		<div *ngIf="task=='Sign Up'"class="form-group">
+<form ngNativeValidate>
+	<div class="modal-body">
+		<div *ngIf="task=='Sign Up'" class="form-group">
 			<label for="username">Username:</label>
-			<input type="text" class="form-control" id="username">
+			<input [(ngModel)]="username" type="text" class="form-control" name="username" required>
 		</div>
 		<div class="form-group">
 			<label for="email">Email address:</label>
-			<input type="email" class="form-control" id="email">
+			<input [(ngModel)]="email" type="email" class="form-control" name="email" required>
 		</div>
 		<div class="form-group">
 			<label for="pwd">Password:</label>
-			<input type="password" class="form-control" id="pwd">
+			<input [(ngModel)]="password" type="password" class="form-control" name="password" required>
 		</div>
-		Already have an account? <a href="#">Login</a>
-	</form>
-</div>
+		<span *ngIf="task=='Sign Up'">Already have an account? <a (click)=switchTasks() href="#">Login</a></span>
+		<span *ngIf="task=='Login'">Need to create an account? <a (click)=switchTasks() href="#">Sign Up</a></span>
+	</div>
 
-<!-- Modal footer -->
-<div class="modal-footer">
-	<button type="button" class="btn btn-secondary" data-dismiss="modal">{{task}}</button>
-</div>
+	<div class="modal-footer">
+		<button type="submit" class="btn btn-primary" (click)=submitTask()>{{task}}</button>
+	</div>
+</form>
