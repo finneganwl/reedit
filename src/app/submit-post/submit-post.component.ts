@@ -30,7 +30,7 @@ export class SubmitPostComponent implements OnInit {
 		"title": this.title,
 		"uid": this.afAuth.auth.currentUser.uid,
 		"submittedBy": this.afAuth.auth.currentUser.displayName,
-		"upvotes": 1,
+		"upvotes": 0,
 	}).then(() => this.closeModal());
   }
 

@@ -41,7 +41,6 @@ export class SignInComponent implements OnInit {
 		}
 		if (this.task == "Sign Up") {
 			this.afAuth.auth.createUserWithEmailAndPassword(this.email, this.password).catch((error) => {
-				// Handle Errors here.
 				var errorCode = error.code;
 				var errorMessage = error.message;
 				if (errorCode == 'auth/weak-password') {
@@ -54,7 +53,6 @@ export class SignInComponent implements OnInit {
 		}
 		else { // Login
 			this.afAuth.auth.signInWithEmailAndPassword(this.email, this.password).catch((error) => {
-				// Handle Errors here.
 				var errorCode = error.code;
 				var errorMessage = error.message;
 				if (errorCode === 'auth/wrong-password') {
@@ -80,6 +78,7 @@ export class SignInComponent implements OnInit {
 			}).then(() => this.signalAuthenticated());
 		}
 	}
+	
 	closeModal() {	
 		if (!this.errorOccurred) {
 			$("#signIn").modal('toggle');

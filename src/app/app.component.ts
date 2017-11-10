@@ -4,7 +4,6 @@ import { AngularFireAuth } from 'angularfire2/auth';
 import { AngularFireDatabase, AngularFireList, AngularFireObject} from 'angularfire2/database';
 import * as firebase from 'firebase/app';
 import { Observable } from 'rxjs/Observable';
-import 'rxjs/add/operator/map'
 
 declare var $: any; // for jquery
 
@@ -20,8 +19,6 @@ export class AppComponent implements OnInit {
 	postsRef: AngularFireList<any>;
 	upvotesRef: AngularFireObject<any>;
 	upvoteIsColored: any;
-	//subscription: any;
-
 
 	constructor(public afAuth: AngularFireAuth, db: AngularFireDatabase) {
 		this.db = db;
@@ -38,10 +35,10 @@ export class AppComponent implements OnInit {
 		this.currentUser = this.afAuth.auth.currentUser.displayName;
 
 		// retrieve previous upvote status for the user
-		this.getListItemsOnce(this.postsRef, (post) => {
-			this.upvotesRef = this.db.object('upvotes/' + this.afAuth.auth.currentUser.uid + '/' + post.key);
+		this.getListItemsOnce(this.postsRef, (post, key) => {
+			this.upvotesRef = this.db.object('upvotes/' + this.afAuth.auth.currentUser.uid + '/' + key);
 			this.getObjectOnce(this.upvotesRef, (userDidUpvote) => {
-				this.upvoteIsColored[post.key] = userDidUpvote.payload.val();
+				this.upvoteIsColored[key] = userDidUpvote;
 			});
 		});
 	}
@@ -55,7 +52,7 @@ export class AppComponent implements OnInit {
 		if (this.currentUser) {
 			// user can only upvote once
 			this.upvotesRef = this.db.object('upvotes/' + this.afAuth.auth.currentUser.uid + '/' + post.key);
-			this.getObjectOnce(this.upvotesRef, (alreadyUpvoted) => {
+			this.getObjectOnce(this.upvotesRef, (alreadyUpvoted, uid) => {
 				var oldUpvoteCount = post.payload.val().upvotes;
 				if (alreadyUpvoted) {
 					// remove upvote, change color back, decrement count
@@ -88,22 +85,25 @@ export class AppComponent implements OnInit {
 	logout() {
 		this.afAuth.auth.signOut();
 		this.currentUser = null;
+		this.upvoteIsColored = {};
 	}
 
 	getObjectOnce(objectRef, func) {
 		var subscription = objectRef.snapshotChanges().subscribe(action => {
+			var key = action.key
 			var object = action.payload.val();
 			subscription.unsubscribe(); // only get value one time
-			return func(object);
+			func(object, key);
 		});
 	}
 
 	getListItemsOnce(listRef, func) {
 		var subscription = listRef.snapshotChanges().subscribe(actions => {
 			actions.forEach(action => {
+				var key = action.key
 				var listItem = action.payload.val();
 				subscription.unsubscribe();
-				return func(listItem);
+				func(listItem, key);
 			});
 		});
 	}
