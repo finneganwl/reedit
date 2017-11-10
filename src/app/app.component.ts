@@ -26,7 +26,7 @@ export class AppComponent implements OnInit {
 	constructor(public afAuth: AngularFireAuth, db: AngularFireDatabase) {
 		this.db = db;
 		this.postsRef = db.list('posts', ref => ref.orderByChild('upvotes'));
-		this.posts = this.postsRef.snapshotChanges()
+		this.posts = this.postsRef.snapshotChanges();
 		this.upvoteIsColored = {};
 		//this.posts.forEach(() => this.upvoteIsColored.push(false));
 		//this.upvoteIsColored[2] = true;
@@ -81,7 +81,7 @@ export class AppComponent implements OnInit {
 
 					// increment upvote count
 					var oldUpvoteCount = post.payload.val().upvotes;
-					this.postsRef.update(post.key, {"upvotes": oldUpvoteCount + 1});
+					this.db.list('posts', ref => ref.orderByChild('upvotes')).update(post.key, {"upvotes": oldUpvoteCount + 1});
 					//this.postsRef = this.db.list('posts', ref => ref.orderByChild('upvotes'));
 					//this.posts = this.postsRef.snapshotChanges();
 					
