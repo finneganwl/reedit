@@ -28,8 +28,6 @@ export class AppComponent implements OnInit {
 		this.postsRef = db.list('posts', ref => ref.orderByChild('upvotes'));
 		this.posts = this.postsRef.snapshotChanges();
 		this.upvoteIsColored = {};
-		//this.posts.forEach(() => this.upvoteIsColored.push(false));
-		//this.upvoteIsColored[2] = true;
 	}
 
 	ngOnInit() {
@@ -38,55 +36,39 @@ export class AppComponent implements OnInit {
 
 	onAuthenticated(event) {
 		this.currentUser = this.afAuth.auth.currentUser.displayName;
-		var postsSubscription = this.postsRef.snapshotChanges().subscribe(pActions => {
-			pActions.forEach(pAction => {
-				this.upvotesRef = this.db.object('upvotes/' + this.afAuth.auth.currentUser.uid + '/' + pAction.key);
-				var upvotesSubscription = this.upvotesRef.snapshotChanges().subscribe(uAction => {
-					this.upvoteIsColored[pAction.key] = uAction.payload.val();
-					upvotesSubscription.unsubscribe();
-				});
+
+		// retrieve previous upvote status for the user
+		this.getListItemsOnce(this.postsRef, (post) => {
+			this.upvotesRef = this.db.object('upvotes/' + this.afAuth.auth.currentUser.uid + '/' + post.key);
+			this.getObjectOnce(this.upvotesRef, (userDidUpvote) => {
+				this.upvoteIsColored[post.key] = userDidUpvote.payload.val();
 			});
-			postsSubscription.unsubscribe();
-		})
+		});
 	}
 
 	onSubmitted(event) {
-		this.postsRef = this.db.list('posts', ref => ref.orderByChild('upvotes'));
-		this.posts = this.postsRef.snapshotChanges();
+		
 	}
 
 	upvote(post) {
-		// user must be signed in to uvote
+		// user must be signed in to upvote
 		if (this.currentUser) {
 			// user can only upvote once
 			this.upvotesRef = this.db.object('upvotes/' + this.afAuth.auth.currentUser.uid + '/' + post.key);
-			var subscription = this.upvotesRef.snapshotChanges().subscribe(action => {
-				var alreadyUpvoted = action.payload.val();
-				subscription.unsubscribe(); // only get one value
+			this.getObjectOnce(this.upvotesRef, (alreadyUpvoted) => {
+				var oldUpvoteCount = post.payload.val().upvotes;
 				if (alreadyUpvoted) {
-					// remove upvote and change color back
+					// remove upvote, change color back, decrement count
 					this.upvotesRef.set(false);
 					this.upvoteIsColored[post.key] = false;
-
-					// decrement upvote count
-					var oldUpvoteCount = post.payload.val().upvotes;
 					this.postsRef.update(post.key, {"upvotes": oldUpvoteCount - 1});
-					//this.postsRef = this.db.list('posts', ref => ref.orderByChild('upvotes'));
-					//this.posts = this.postsRef.snapshotChanges();
 				}
 				else {
-					// save upvote and change color
+					// save upvote, change color, increment count
 					this.upvotesRef.set(true);
 					this.upvoteIsColored[post.key] = true;
-
-					// increment upvote count
-					var oldUpvoteCount = post.payload.val().upvotes;
-					this.db.list('posts', ref => ref.orderByChild('upvotes')).update(post.key, {"upvotes": oldUpvoteCount + 1});
-					//this.postsRef = this.db.list('posts', ref => ref.orderByChild('upvotes'));
-					//this.posts = this.postsRef.snapshotChanges();
-					
+					this.postsRef.update(post.key, {"upvotes": oldUpvoteCount + 1});
 				}
-
 			});
 		}
 		else {
@@ -108,4 +90,21 @@ export class AppComponent implements OnInit {
 		this.currentUser = null;
 	}
 
+	getObjectOnce(objectRef, func) {
+		var subscription = objectRef.snapshotChanges().subscribe(action => {
+			var object = action.payload.val();
+			subscription.unsubscribe(); // only get value one time
+			return func(object);
+		});
+	}
+
+	getListItemsOnce(listRef, func) {
+		var subscription = listRef.snapshotChanges().subscribe(actions => {
+			actions.forEach(action => {
+				var listItem = action.payload.val();
+				subscription.unsubscribe();
+				return func(listItem);
+			});
+		});
+	}
 }
